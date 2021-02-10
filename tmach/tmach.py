@@ -8,6 +8,9 @@ class TMachine(object):
 		self.IMem = [Instruction() for _ in range(inst_size)]
 		self.DMem = [0 for _ in range(data_size)]
 		self.DMem = data_size -1
+		self.rr_opcodes = [str(opcode) for opcode in RegRegOpcode]
+		self.rm_opcodes = [str(opcode) for opcode in RegMemOpcode]
+		self.rv_opcodes = [str(opcode) for opcode in RegValOpcode]
 
 	def get_num(self, token):
 		if token.isdigit():
@@ -17,12 +20,7 @@ class TMachine(object):
 
 	def load_inst(self, token, args, no, loc):
 		if token.isalpha():
-			
-			rr_opcodes = [str(opcode) for opcode in RegRegOpcode]
-			rm_opcodes = [str(opcode) for opcode in RegMemOpcode]
-			rv_opcodes = [str(opcode) for opcode in RegValOpcode]
-
-			if token in rr_opcodes:   # regreg_opcode
+			if token in self.rr_opcodes:   # regreg_opcode
 				arg_lst = [int(x) for x in args.split(',')]
 				if len(arg_lst) != 3:
 					return (error("Argument Error", no, loc), Instruction())
@@ -37,8 +35,8 @@ class TMachine(object):
 					return (error("Bad Thrid Register", no, loc), Instruction());
 
 				return (True, Instruction(token, arg_lst[0], arg_lst[1], arg_lst[2]))
-			elif token in rm_opcodes or \
-				 token in rv_opcodes: # regval_opcode, regmem_opcode
+			elif token in self.rm_opcodes or \
+				 token in self.rv_opcodes: # regval_opcode, regmem_opcode
 
 				arg_lst = args.split(',')
 				if len(arg_lst) != 2:
@@ -94,7 +92,69 @@ class TMachine(object):
 				if inst[0]:
 					self.IMem[ret[1]] = inst[1]
 
+	def step(self):
+		pc = self.Regs[-1]
 
+		if pc < 0 or pc > len(self.IMem):
+			return StepResult.IMEM_ERR
+		self.Regs[-1] = pc + 1
+
+		# instruction Fetch & Decode
+		cur_inst = self.IMem[pc]
+		if cur_inst.opcode in self.rr_opcodes:
+			r1 = cur_inst.arg1
+			r2 = cur_inst.arg2
+			r3 = cur_inst.arg3
+		elif cur_inst.opcode in self.rm_opcodes:
+			r1 = cur_inst.arg1
+			r2 = cur_inst.arg3
+			m = cur_inst.arg2 + self.Regs[r2]
+			if m < 0 or m > len(self.DMem):
+				return StepResult.DMEM_ERR
+		else:
+			r1 = cur_inst.arg1
+			r2 = cur_inst.arg3
+			m = cur_inst.arg2 + self.Regs[r2]
+
+		# instruction execution
+		if cur_inst.opcode == "HALT":
+			print(cur_inst.opcode)
+		elif cur_inst.opcode == "IN":
+			print(cur_inst.opcode)
+		elif cur_inst.opcode == "OUT":
+			print(cur_inst.opcode)
+		elif cur_inst.opcode == "ADD":
+			print(cur_inst.opcode)
+		elif cur_inst.opcode == "SUB":
+			print(cur_inst.opcode)
+		elif cur_inst.opcode == "MUL":
+			print(cur_inst.opcode)
+		elif cur_inst.opcode == "DIV":
+			print(cur_inst.opcode)
+
+		elif cur_inst.opcode == "LD":
+			print(cur_inst.opcode)
+		elif cur_inst.opcode == "ST":
+			print(cur_inst.opcode)
+
+		elif cur_inst.opcode == "LDA":
+			print(cur_inst.opcode)
+		elif cur_inst.opcode == "LDC":
+			print(cur_inst.opcode)
+		elif cur_inst.opcode == "JLT":
+			print(cur_inst.opcode)
+		elif cur_inst.opcode == "JLE":
+			print(cur_inst.opcode)
+		elif cur_inst.opcode == "JGT":
+			print(cur_inst.opcode)
+		elif cur_inst.opcode == "JGE":
+			print(cur_inst.opcode)
+		elif cur_inst.opcode == "JEQ":
+			print(cur_inst.opcode)
+		elif cur_inst.opcode == "JNE":
+			print(cur_inst.opcode)
+
+		return StepResult.OKAY
 	def error(self, msg, lineNo, instNo):
 		errmsg = f"Line {lineNo}"
 		if instNo >= 0:
@@ -104,6 +164,7 @@ class TMachine(object):
 		return False
 
 	def do_command(self):
+		print("Enter Command", end=':')
 		return True
 
 if len(sys.argv) != 2:
