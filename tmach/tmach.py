@@ -7,7 +7,7 @@ class TMachine(object):
 		self.Regs = [0 for _ in range(num_regs)]
 		self.IMem = [Instruction() for _ in range(inst_size)]
 		self.DMem = [0 for _ in range(data_size)]
-		self.DMem = data_size -1
+		#self.DMem = data_size -1
 		self.rr_opcodes = [str(opcode) for opcode in RegRegOpcode]
 		self.rm_opcodes = [str(opcode) for opcode in RegMemOpcode]
 		self.rv_opcodes = [str(opcode) for opcode in RegValOpcode]
@@ -100,6 +100,7 @@ class TMachine(object):
 		self.Regs[-1] = pc + 1
 
 		# instruction Fetch & Decode
+		print(pc, len(self.IMem))
 		cur_inst = self.IMem[pc]
 		if cur_inst.opcode in self.rr_opcodes:
 			r1 = cur_inst.arg1
@@ -118,7 +119,8 @@ class TMachine(object):
 
 		# instruction execution
 		if cur_inst.opcode == "HALT":
-			print(cur_inst.opcode)
+			print("HALT: %1d, %1d, %1d"% (r1,r2,r3))
+			return StepResult.HALT
 		elif cur_inst.opcode == "IN":
 			print(cur_inst.opcode)
 		elif cur_inst.opcode == "OUT":
@@ -155,6 +157,7 @@ class TMachine(object):
 			print(cur_inst.opcode)
 
 		return StepResult.OKAY
+
 	def error(self, msg, lineNo, instNo):
 		errmsg = f"Line {lineNo}"
 		if instNo >= 0:
@@ -164,7 +167,21 @@ class TMachine(object):
 		return False
 
 	def do_command(self):
-		print("Enter Command", end=':')
+		cmd = input("Enter Command:")
+
+		if cmd == "g":
+			stepcnt = 0;
+			stepResult = StepResult.OKAY
+			
+			while stepResult == StepResult.OKAY:
+				iloc = self.Regs[-1]
+				#if ( traceflag ) writeInstruction( iloc ) ;
+				stepResult = self.step();
+				stepcnt += 1;
+				#if  icountflag :
+				#	print(f"Number of instructions executed = stepcnt")
+			pass
+
 		return True
 
 if len(sys.argv) != 2:
