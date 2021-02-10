@@ -1,6 +1,6 @@
 from enum import Enum, auto
 
-class StrEnum(str, Enum):
+class StrEnum(Enum):
 	def _generate_next_value(name, start, count, last_values):
 		return name
 
@@ -11,21 +11,21 @@ class StrEnum(str, Enum):
 		return self.name
 
 
-class regreg_opcode(StrEnum):
+class RegRegOpcode(StrEnum):
 	HALT = auto()
 	IN = auto()
 	OUT = auto()
 	ADD = auto()
+	SUB = auto()
 	MUL = auto()
 	DIV = auto()
 
-
-class regmem_opcode(StrEnum):
+class RegMemOpcode(StrEnum):
 	LD = auto()
 	ST = auto()
 
 
-class regval_opcode(StrEnum):
+class RegValOpcode(StrEnum):
 	LDA = auto()
 	LDC = auto()
 	JLT = auto()
@@ -36,8 +36,8 @@ class regval_opcode(StrEnum):
 	JNE = auto()
 
 class Instruction(object):
-	def __init__(self, opcode = regreg_opcode.HALT, arg1=-1, arg2=-1, arg3=-1):
-			self.opecode = opcode
-			self.arg1 = arg1
-			self.arg2 = arg2
-			self.arg3 = arg3
+	def __init__(self, opcode = RegRegOpcode.HALT, arg1=-1, arg2=-1, arg3=-1):
+		self.opecode = opcode
+		self.arg1 = arg1
+		self.arg2 = arg2
+		self.arg3 = arg3
