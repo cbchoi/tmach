@@ -19,6 +19,7 @@ class RegRegOpcode(StrEnum):
 	SUB = auto()
 	MUL = auto()
 	DIV = auto()
+	UNK = auto()
 
 class RegMemOpcode(StrEnum):
 	LD = auto()
@@ -36,7 +37,7 @@ class RegValOpcode(StrEnum):
 	JNE = auto()
 
 class Instruction(object):
-	def __init__(self, opcode = RegRegOpcode.HALT, arg1=-1, arg2=-1, arg3=-1):
+	def __init__(self, opcode = RegRegOpcode.UNK, arg1=-1, arg2=-1, arg3=-1):
 		self.opcode = opcode
 		self.arg1 = arg1
 		self.arg2 = arg2
@@ -48,3 +49,4 @@ class StepResult(StrEnum):
 	IMEM_ERR = auto()
 	DMEM_ERR = auto()
 	DIV_ZERO = auto()
+	INPUT_ERR = auto()
