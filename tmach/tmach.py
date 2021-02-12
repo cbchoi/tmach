@@ -40,16 +40,16 @@ class TMachine(object):
 			if token in self.rr_opcodes:   # regreg_opcode
 				arg_lst = [int(x) for x in args.split(',')]
 				if len(arg_lst) != 3:
-					return (error("Argument Error", no, loc), Instruction())
+					return (self.error("Argument Error", no, loc), Instruction())
 
 				if arg_lst[0] < 0 or arg_lst[0] >= len(self.Regs):
-					return (error("Bad First Register", no, loc), Instruction());
+					return (self.error("Bad First Register", no, loc), Instruction());
 
 				if arg_lst[1] < 0 or arg_lst[2] >= len(self.Regs):
-					return (error("Bad Second Register", no, loc), Instruction());
+					return (self.error("Bad Second Register", no, loc), Instruction());
 
 				if arg_lst[2] < 0 or arg_lst[2] >= len(self.Regs):
-					return (error("Bad Thrid Register", no, loc), Instruction());
+					return (self.error("Bad Thrid Register", no, loc), Instruction());
 
 				return (True, Instruction(token, arg_lst[0], arg_lst[1], arg_lst[2]))
 			elif token in self.rm_opcodes or \
@@ -57,13 +57,18 @@ class TMachine(object):
 
 				arg_lst = args.split(',')
 				if len(arg_lst) != 2:
-					return (error("Argument Error", no, loc), Instruction())
+					if len(arg_lst) != 3:
+						return (self.error("Argument Error", no, loc), Instruction())
+					else:
+						displacements = arg_lst[1:]
+				else:
+					displacements = arg_lst[1].split('(')
+					displacements[1] = displacements[1][:-1]
 
 				if int(arg_lst[0]) < 0 or int(arg_lst[0]) >= len(self.Regs):
 					return (self.error("Bad First Register", no, loc), Instruction());
 
-				displacements = arg_lst[1].split('(')
-				
+								
 				try:
 					f_arg = int(displacements[0])
 				except ValueError:
@@ -73,12 +78,12 @@ class TMachine(object):
 					return (self.error("Parsing Failed", no, loc), Instruction());
 
 				try:
-					s_arg = int(displacements[1][:-1])
+					s_arg = int(displacements[1])
 					
 					if s_arg < 0 or s_arg  >= len(self.Regs):
 						return (self.error("Bad Second Register", no, loc), Instruction())	
 				except ValueError:
-					return (self.error("Bad Second Register(Wrong Register Number Value)", no, loc), Instruction())
+					return (self.error("Bad Second Register (Wrong Register Number Value)", no, loc), Instruction())
 
 				return (True, Instruction(token, int(arg_lst[0]), f_arg, s_arg))
 			else:
@@ -219,6 +224,9 @@ class TMachine(object):
 		cmd = input("Enter Command:")
 
 		cmd = cmd.split()
+
+		if len(cmd) == 0:
+			return True
 
 		if cmd[0] == 'h':
 			printf("Commands are:");
